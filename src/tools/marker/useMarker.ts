@@ -58,5 +58,5 @@ export function useMarker({
 
   const cursor = circleCursor(strokeWidth);
 
-  return { name: "Marker pen", startStroke, continueStroke, cursor };
+  return { name: "Marker", startStroke, continueStroke, cursor };
 }
