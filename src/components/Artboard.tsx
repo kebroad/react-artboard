@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   useState,
+  useEffect,
 } from "react";
 
 import { History } from "../history";
@@ -171,25 +172,65 @@ export const Artboard = forwardRef(function Artboard(
 
   const mouseEnter = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-      if (mouseButtonIsDown(event.buttons)) {
+      // If mouse button is down but we're not drawing, start a new stroke
+      if (mouseButtonIsDown(event.buttons) && !drawing) {
         mouseDown(event);
-      } else if (drawing) {
-        endStroke();
       }
     },
-    [drawing, mouseDown, endStroke]
+    [drawing, mouseDown]
   );
 
   const mouseLeave = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+      // Don't end the stroke when leaving the canvas - let the global mouse handlers manage this
+      // This allows continuous drawing when moving outside and back into the canvas
+    },
+    []
+  );
+
+  // Add global mouse event listeners for better drawing experience
+  useEffect(() => {
+    if (!drawing || !canvas) {
+      return;
+    }
+
+    const handleGlobalMouseMove = (event: MouseEvent) => {
       if (!drawing) {
         return;
       }
-      continueStroke(getMousePoint(event));
-      endStroke();
-    },
-    [continueStroke, drawing, endStroke]
-  );
+      
+      const rect = canvas.getBoundingClientRect();
+      const point: Point = [
+        event.clientX - rect.left,
+        event.clientY - rect.top
+      ];
+      
+      // Only process global mouse events when outside the canvas bounds
+      // This prevents double processing when drawing inside the canvas
+      const isOutsideCanvas = point[0] < 0 || point[0] > canvas.width || 
+                              point[1] < 0 || point[1] > canvas.height;
+      
+      if (isOutsideCanvas && 
+          point[0] >= -50 && point[0] <= canvas.width + 50 && 
+          point[1] >= -50 && point[1] <= canvas.height + 50) {
+        continueStroke(point);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (drawing) {
+        endStroke();
+      }
+    };
+
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [drawing, canvas, continueStroke, endStroke]);
 
   useImperativeHandle(
     ref,
