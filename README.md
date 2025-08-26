@@ -30,6 +30,8 @@ other tools.
       - [Options](#options-3)
     - [Airbrush](#airbrush)
       - [Options](#options-4)
+    - [Image Tool](#image-tool)
+      - [Options](#options-5)
   - [Custom brushes](#custom-brushes)
   - [History](#history)
   - [Sources](#sources)
@@ -245,6 +247,35 @@ according to the different parameters.
 
 - **`color`** A CSS string color.
 - **`strokeWidth`** The width of the brush
+
+### Image Tool
+
+`useImage(options)`
+
+The image tool allows you to import, position, move, resize, rotate, and scale images on the artboard. Click to select an image and use the various handles to manipulate it:
+
+- **Move**: Click and drag the image to reposition it
+- **Resize**: Drag the blue square handle (bottom-right) to resize while maintaining aspect ratio  
+- **Rotate**: Drag the orange circle handle (top-center) to rotate the image around its center
+- **Scale**: Drag the small green square handle (bottom-right, offset) to scale the image uniformly
+
+#### Options
+
+- **`onImageImported`** `(imageData: ImageData) => void` - Callback when an image is imported
+
+The image tool provides additional methods:
+- **`importImage`** `(file: File) => Promise<ImageData>` - Programmatically import an image file
+- **`triggerImageImport`** `() => void` - Open file dialog to import an image
+- **`images`** `ImageData[]` - Array of currently imported images
+- **`selectedImageIndex`** `number | null` - Index of currently selected image
+
+Each `ImageData` object contains:
+- `image`: HTMLImageElement - The loaded image
+- `x`, `y`: number - Position coordinates
+- `width`, `height`: number - Current display dimensions
+- `originalWidth`, `originalHeight`: number - Original image dimensions
+- `scale`: number - Scale factor (1.0 = original size, 0.1-5.0 range)
+- `rotation`: number - Rotation angle in radians
 
 ## Custom brushes
 

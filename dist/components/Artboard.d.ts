@@ -20,5 +20,7 @@ export interface ToolHandlers {
     continueStroke?: (point: Point, context: CanvasRenderingContext2D) => void;
     endStroke?: (context: CanvasRenderingContext2D) => void;
     cursor?: string;
+    drawImages?: (context: CanvasRenderingContext2D) => void;
+    [key: string]: any;
 }
 export declare const Artboard: React.ForwardRefExoticComponent<ArtboardProps & React.RefAttributes<ArtboardRef>>;
