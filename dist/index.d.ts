@@ -4,6 +4,7 @@ export * from "./tools/airbrush/useAirbrush";
 export * from "./tools/shading/useShadingBrush";
 export * from "./tools/watercolor/useWatercolor";
 export * from "./tools/eraser/useEraser";
+export * from "./tools/image/useImage";
 export * from "./components/Artboard";
 export * from "./utils/pointUtils";
 export * from "./history";

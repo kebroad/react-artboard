@@ -38,6 +38,8 @@ export interface ToolHandlers {
   continueStroke?: (point: Point, context: CanvasRenderingContext2D) => void;
   endStroke?: (context: CanvasRenderingContext2D) => void;
   cursor?: string;
+  drawImages?: (context: CanvasRenderingContext2D) => void;
+  [key: string]: any; // Allow additional properties for extended tools
 }
 
 export const Artboard = forwardRef(function Artboard(
@@ -141,6 +143,7 @@ export const Artboard = forwardRef(function Artboard(
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.restore();
+    
     if (canvas && history) {
       history.pushState(canvas);
     }
@@ -162,6 +165,7 @@ export const Artboard = forwardRef(function Artboard(
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvasRef.width, canvasRef.height);
       ctx.fillStyle = "transparent";
+      
       if (history) {
         history.setContext(ctx);
         history.pushState(canvasRef);
@@ -187,6 +191,8 @@ export const Artboard = forwardRef(function Artboard(
     },
     []
   );
+
+  // No automatic image drawing - images are drawn by the tool itself during interactions
 
   // Add global mouse event listeners for better drawing experience
   useEffect(() => {

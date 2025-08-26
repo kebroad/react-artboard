@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   useBrush,
   useMarker,
@@ -8,6 +8,7 @@ import {
   useShadingBrush,
   useEraser,
   useWatercolor,
+  useImage,
   ToolHandlers,
 } from "../src/";
 
@@ -22,6 +23,7 @@ import {
   FaUndo,
   FaRedo,
   FaGithub,
+  FaImage,
 } from "react-icons/fa";
 import { HexColorPicker } from "react-colorful";
 import { IoMdWater } from "react-icons/io";
@@ -49,17 +51,30 @@ export function App(): JSX.Element {
     spreadFactor: (1 / 45) * strokeWidth,
     distanceThreshold: 100,
   });
-  const tools: Array<[ToolHandlers, IconType]> = [
+  const onImageImported = useCallback((imageData) => {
+    console.log('Image imported:', imageData);
+  }, []);
+
+  const imageTool = useImage({
+    onImageImported
+  });
+  
+  const tools: Array<[ToolHandlers, IconType]> = useMemo(() => [
     [shading, FaPencilAlt],
     [watercolor, IoMdWater],
     [brush, FaPaintBrush],
     [marker, FaMarker],
     [airbrush, FaSprayCan],
     [eraser, FaEraser],
-  ];
+    [imageTool, FaImage],
+  ], [shading, watercolor, brush, marker, airbrush, eraser, imageTool]);
   const [currentTool, setCurrentTool] = useState(0);
 
   const { undo, redo, history, canUndo, canRedo } = useHistory();
+
+  const handleArtboardRef = useCallback((ref: ArtboardRef | null) => {
+    setArtboardRef(ref);
+  }, []);
 
   return (
     <main>
@@ -144,6 +159,14 @@ export function App(): JSX.Element {
         </label>
       </div>
       <div id="controls" className="toolbarSection">
+        {currentTool === tools.length - 1 && (
+          <button 
+            onClick={() => (tools[currentTool][0] as any).triggerImageImport?.()}
+            title="Import Image"
+          >
+            Import Image
+          </button>
+        )}
         <button onClick={undo} disabled={!canUndo}>
           <FaUndo size={12} title="Undo" />
         </button>
@@ -160,7 +183,7 @@ export function App(): JSX.Element {
       <div id="artboard">
         <Artboard
           tool={tools[currentTool][0]}
-          ref={setArtboardRef}
+          ref={handleArtboardRef}
           history={history}
           style={{ border: "1px gray solid" }}
         />
